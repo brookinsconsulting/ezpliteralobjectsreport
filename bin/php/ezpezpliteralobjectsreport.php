@@ -64,17 +64,6 @@ else
     $script->shutdown( 2 );
 }
 
-/** Fetch starting node from content tree **/
-
-// $node = eZContentObjectTreeNode::fetch( $nodeID );
-/*
-if ( !$node )
-{
-    $cli->error( "No node with ID: $nodeID" );
-    $script->shutdown( 3 );
-}
-*/
-
 /** Alert user of report generation process starting **/
 
 $cli->output( "Searching through content for literal usage ...\n" );
@@ -161,46 +150,38 @@ while ( list( $key, $contentObject ) = each( $results ) )
     {
         $objectMainNodeID = $objectMainNode->attribute( 'node_id' );
         $objectMainNodePath = $siteNodeUrlPrefix . $siteNodeUrlHostname . '/' . $objectMainNode->attribute( 'url' );
-    }
-    else
-    {
-        $objectMainNodeID = null;
-        $objectMainNodePath = null;
-    }
 
-    // print_r( $contentObject ); echo "\n\n";
-    // print_r( $objectMainNodePath ); echo "\n\n";
+        /** Build report for objects **/
 
-    /** Build report for objects **/
+        $objectData[] = $contentObjectID;
 
-    $objectData[] = $contentObjectID;
+        $objectData[] = $objectMainNodeID;
 
-    $objectData[] = $objectMainNodeID;
+        $objectData[] = $contentObjectAttributeID;
 
-    $objectData[] = $contentObjectAttributeID;
+        $objectData[] = $contentObjectVersionID;
 
-    $objectData[] = $contentObjectVersionID;
+        $objectData[] = $objectContainsLiteral;
 
-    $objectData[] = $objectContainsLiteral;
+        $objectData[] = $objectName;
 
-    $objectData[] = $objectName;
+        $objectData[] = $objectMainNodePath;
 
-    $objectData[] = $objectMainNodePath;
+        /** Test if report file is opened **/
 
-    /** Test if report file is opened **/
+        if ( !$fp )
+        {
+            $cli->error( "Can not open output file" );
+            $script->shutdown( 5 );
+        }
 
-    if ( !$fp )
-    {
-        $cli->error( "Can not open output file" );
-        $script->shutdown( 5 );
-    }
+        /** Write report datat to file **/
 
-    /** Write report datat to file **/
-
-    if ( !fputcsv( $fp, $objectData, ';' ) )
-    {
-        $cli->error( "Can not write to file" );
-        $script->shutdown( 6 );
+        if ( !fputcsv( $fp, $objectData, ';' ) )
+        {
+            $cli->error( "Can not write to file" );
+            $script->shutdown( 6 );
+        }
     }
 
     $script->iterate( $cli, $status );
