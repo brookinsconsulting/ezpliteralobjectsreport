@@ -39,7 +39,7 @@ $openedFPs = array();
 
 $orphanedCsvReportFileName = 'ezpezpliteralobjectsreport';
 
-$csvHeader = array( 'ContentObjectID', 'NodeID', 'AttributeID', 'Version', 'Contains Literal', 'Name', 'Url' );
+$csvHeader = array( 'ContentObjectID', 'NodeID', 'AttributeID', 'Identifier', 'Version', 'Contains Literal', 'Name', 'Url' );
 
 $siteNodeUrlPrefix = "http://";
 
@@ -71,7 +71,7 @@ $cli->output( "Searching through content for literal usage ...\n" );
 /** Fetch objects in content tree with attribute containing literal usage **/
 
 $db = eZDB::instance();
-$query = 'SELECT DISTINCT ezcontentobject_attribute.contentobject_id, ezcontentobject_attribute.contentclassattribute_id, ezcontentobject_attribute.id, MAX( ezcontentobject_attribute.version ) as version FROM ezcontentobject_attribute WHERE data_text like "%<literal class=\"html\">%" GROUP BY ezcontentobject_attribute.contentobject_id ORDER BY ezcontentobject_attribute.contentobject_id DESC, ezcontentobject_attribute.id DESC, version DESC;';
+$query = 'SELECT DISTINCT ezcontentobject_attribute.contentobject_id, ezcontentobject_attribute.contentclassattribute_id, ezcontentclass_attribute.identifier, ezcontentobject_attribute.id, MAX( ezcontentobject_attribute.version ) as version FROM ezcontentobject_attribute,ezcontentclass_attribute WHERE data_text like "%<literal class=\"html\">%" AND ezcontentclass_attribute.id = ezcontentobject_attribute.contentclassattribute_id GROUP BY ezcontentobject_attribute.contentobject_id ORDER BY ezcontentobject_attribute.contentobject_id DESC, ezcontentobject_attribute.id DESC, version DESC';
 
 // $results = $db->arrayQuery( $sql, array( 'limit' => 1 ) );
 $results = $db->arrayQuery( $query );
@@ -140,6 +140,7 @@ while ( list( $key, $contentObject ) = each( $results ) )
     $objectContainsLiteral = 1;
     $contentObjectID = $contentObject['contentobject_id'];
     $contentClassAttributeID = $contentObject['contentclassattribute_id'];
+    $contentClassAttributeIdentifier = $contentObject['identifier'];
     $contentObjectAttributeID = $contentObject['id'];
     $contentObjectVersionID = $contentObject['version'];
 
@@ -158,6 +159,8 @@ while ( list( $key, $contentObject ) = each( $results ) )
         $objectData[] = $objectMainNodeID;
 
         $objectData[] = $contentObjectAttributeID;
+
+        $objectData[] = $contentClassAttributeIdentifier;
 
         $objectData[] = $contentObjectVersionID;
 
