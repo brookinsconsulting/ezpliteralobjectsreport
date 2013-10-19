@@ -6,7 +6,7 @@
  * @copyright Copyright (C) 1999 - 2014 Brookins Consulting. All rights reserved.
  * @copyright Copyright (C) 2013 - 2014 Think Creative. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2 (or later)
- * @version 0.1.1
+ * @version 0.1.2
  * @package ezpezpliteralobjectsreport
  */
 
@@ -17,7 +17,7 @@ require 'autoload.php';
 $cli = eZCLI::instance();
 $script = eZScript::instance( array( 'description' => ( "eZ Publish Literal Object CSV Report Script\n" .
                                                         "\n" .
-                                                        "ezpezpliteralobjectsreport.php --storage-dir=report --hostname=www.example.com" ),
+                                                        "ezpezpliteralobjectsreport.php --storage-dir=var/literalreport --hostname=www.example.com" ),
                                      'use-session' => false,
                                      'use-modules' => true,
                                      'use-extensions' => true,
@@ -95,7 +95,8 @@ $script->resetIteration( $resultsCount );
 
 if ( !isset( $openedFPs[$orphanedCsvReportFileName] ) )
 {
-    $tempFP = @fopen( $storageDir . '/' . $orphanedCsvReportFileName . '.csv', "w" );
+    $fileName = $storageDir . '/' . $orphanedCsvReportFileName . '.csv';
+    $tempFP = @fopen( $fileName, "w" );
 
     if ( $tempFP )
     {
@@ -103,7 +104,7 @@ if ( !isset( $openedFPs[$orphanedCsvReportFileName] ) )
     }
     else
     {
-        $cli->error( "Can not open output file for $storageDir/$orphanedCsvReportFileName file" );
+        $cli->error( "Can not open output file for $fileName file" );
         $script->shutdown( 4 );
     }
 }
@@ -111,7 +112,7 @@ else
 {
    if ( !$openedFPs[$orphanedCsvReportFileName] )
    {
-        $cli->error( "Can not open output file for $storageDir/$orphanedCsvReportFileName file" );
+        $cli->error( "Can not open output file for $fileName file" );
         $script->shutdown( 4 );
    }
 }
@@ -202,6 +203,10 @@ while ( $fp = each( $openedFPs ) )
 {
     fclose( $fp['value'] );
 }
+
+/** Assign permissions to report file **/
+
+chmod( $fileName, 0777);
 
 /** Shutdown script **/
 

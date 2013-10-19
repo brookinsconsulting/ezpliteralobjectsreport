@@ -11,8 +11,8 @@ and generate a csv report.
 eZp Literal Object CSV Report version
 =======================
 
-The current version of eZp Literal Object CSV Report is 0.1.0
-Last Major update: October 4, 2013
+The current version of eZp Literal Object CSV Report is 0.1.2
+Last Major update: October 19, 2013
 
 
 Copyright
@@ -69,7 +69,7 @@ o  PHP version:
    Make sure you have PHP 5.x or higher.
 
 
-Usage
+Usage - Command line script
 ============
 
 # Change directory into eZ Publish website document root:
@@ -78,12 +78,54 @@ cd path/to/ezpublish/docroot;
 # Create directory for report to be stored after generation
 mkdir var/literalCsvReport;
 
+# Assign proper permissions for report directory to be stored after generation
+sudo chmod -R 777 var/literalCsvReport;
+sudo chown -R _www:_www var/literalCsvReport;
+
 # Run the script to generate the report
-php ../FDACS/extension/ezpezpliteralobjectsreport/bin/php/ezpezpliteralobjectsreport.php
+php ./extension/ezpezpliteralobjectsreport/bin/php/ezpezpliteralobjectsreport.php
 --storage-dir=var/literalCsvReport --hostname=www.example.com
 
 # Review generated report in open office as a spreadsheet:
 less var/literalCsvReport/ezpezpliteralobjectsreport.csv
+
+
+Usage - Cronjob
+============
+
+# Change directory into eZ Publish website document root:
+cd path/to/ezpublish/docroot;
+
+# Create settings override
+cp -va extension/ezpliteralobjectsreport/settings/ezpliteralobjectsreport.ini.append.php settings/override/ezpliteralobjectsreport.ini.append.php
+
+# Populate ini settings: SiteHostname and ReportStoragePath
+emacs settings/override/ezpliteralobjectsreport.ini.append.php
+
+# Create directory for report to be stored after generation
+mkdir var/literalCsvReport;
+
+# Assign proper permissions for report directory to be stored after generation
+sudo chmod -R 777 var/literalCsvReport;
+sudo chown -R _www:_www var/literalCsvReport;
+
+# Run the cronjob manually to generate the report
+php ./runcronjobs.php ezpliteralobjectsreportgenerate
+
+# Review generated report in open office as a spreadsheet:
+less var/literalCsvReport/ezpezpliteralobjectsreport.csv
+
+
+Usage - Module
+============
+
+# The module view is optional
+
+# The module view can be used for simple regeneration of report and downloading of report
+
+# Access the module view using the following uri
+
+http://admin.example.com/literalreport/report
 
 
 Troubleshooting
